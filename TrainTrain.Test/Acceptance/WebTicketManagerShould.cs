@@ -18,7 +18,7 @@ namespace TrainTrain.Test.Acceptance
             var manager = new WebTicketManager(trainDataService, bookingReference);
             
             int seatRequested = 3;
-            var jsonResult = await manager.ReserveAsync(trainId, seatRequested);
+            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"\", \"seats\": []}}");
         }
 
@@ -34,7 +34,7 @@ namespace TrainTrain.Test.Acceptance
             var manager = new WebTicketManager(trainDataService, bookingReference);
 
             int seatRequested = 1;
-            var jsonResult = await manager.ReserveAsync(trainId, seatRequested);
+            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"{bokingReferenceNumber}\", \"seats\": [\"1A\"]}}");
         }
 
@@ -50,7 +50,7 @@ namespace TrainTrain.Test.Acceptance
             trainDataService.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 10, 9) + "," + TrainHelper.BuildCoachJson("B", 10, 0) + "}}"))));
             var manager = new WebTicketManager(trainDataService, bookingReference);
 
-            var jsonResult = await manager.ReserveAsync(trainId, seatRequested);
+            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"10\", \"seats\": [\"1B\", \"2B\", \"3B\"]}}");
         }
 
@@ -67,7 +67,7 @@ namespace TrainTrain.Test.Acceptance
             trainDataService.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 10, numberOfReservedSeat: 6) + "," + TrainHelper.BuildCoachJson("B", 10, numberOfReservedSeat: 6) + "}}"))));
             var manager = new WebTicketManager(trainDataService, bookingReference);
 
-            var jsonResult = await manager.ReserveAsync(trainId, seatRequested);
+            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"10\", \"seats\": [\"7A\", \"7B\"]}}");
         }
     }

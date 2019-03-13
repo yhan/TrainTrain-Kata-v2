@@ -126,5 +126,24 @@ namespace TrainTrain
                 availableSeat.BookingRef = bookingRef;
             }
         }
+
+        public Reservation Confirm()
+        {
+            return new Reservation(TrainId, BookingReference, Seats);
+        }
+    }
+
+    public class Reservation
+    {
+        public string TrainId { get; }
+        public string BookingReference { get; }
+        public List<Seat> Seats { get; }
+
+        public Reservation(string trainId, string bookingReference, List<Seat> seats)
+        {
+            TrainId = trainId;
+            BookingReference = bookingReference;
+            Seats = seats;
+        }
     }
 }
