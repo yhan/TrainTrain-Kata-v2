@@ -39,13 +39,18 @@ namespace TrainTrain
             foreach (var coach in this.Coaches.Values)
             {
                 var reservationAttenpt = new ReservationAttenpt(TrainId, seatRequested, coach.GetAvailableSeats(seatRequested));
-
                 if (reservationAttenpt.IsFulFilled())
                 {
                     return reservationAttenpt;
                 }
             }
-            return new ReservationAttenpt(TrainId, seatRequested, new List<Seat>());
+
+            return new ReservationAttenpt(TrainId, seatRequested, GetReservableSeats().Take(seatRequested).ToList());
+        }
+
+        private IEnumerable<Seat> GetReservableSeats()
+        {
+            return Coaches.Values.SelectMany(x => x.GetReservableSeats());
         }
 
         public Dictionary<string, Coach> Coaches { get; }
@@ -68,7 +73,28 @@ namespace TrainTrain
 
         public List<Seat> GetAvailableSeats(int seatRequested)
         {
-            return this.Seats.Where(x => x.IsSeatNotReserved()).Take(seatRequested).ToList();
+            if (ExceedCapacity(seatRequested))
+            {
+                return new List<Seat>();
+            }
+            return GetReserveSeats(seatRequested).ToList();
+        }
+
+        private IEnumerable<Seat> GetReserveSeats(int seatRequested)
+        {
+            return this.Seats.Where(x => x.IsSeatNotReserved()).Take(seatRequested);
+        }
+
+        private bool ExceedCapacity(int seatRequested)
+        {
+            var numberOfReservedSeats = this.Seats.Count(x => !x.IsSeatNotReserved());
+            return seatRequested + numberOfReservedSeats > Seats.Count() * 0.7;
+        }
+
+        public IEnumerable<Seat> GetReservableSeats()
+        {
+            var numberOfReservableSeats = (int)Math.Floor(Seats.Count() * 0.7) - this.Seats.Count(x => !x.IsSeatNotReserved());
+            return GetReserveSeats(numberOfReservableSeats);
         }
     }
 
