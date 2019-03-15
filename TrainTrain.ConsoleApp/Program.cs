@@ -1,4 +1,6 @@
 ﻿using System;
+using TrainTrain.Domain;
+using TrainTrain.Infrastructure.Adapter;
 
 namespace TrainTrain.ConsoleApp
 {
@@ -9,9 +11,10 @@ namespace TrainTrain.ConsoleApp
             var train = args[0];
             var seats = int.Parse(args[1]);
 
-            var manager = new WebTicketManager();
+            var manager = new TicketOfficeService(new TrainDataAdapter(TicketOfficeService.UriTrainDataService),
+                new BookingReferenceAdapter(TicketOfficeService.UriBookingReferenceService));
 
-            var jsonResult = manager.ReserveAsync(train, seats);
+            var jsonResult = manager.ReserveAsync(new TrainId(train), new SeatsRequested(seats));
 
             Console.WriteLine(jsonResult.Result);
 

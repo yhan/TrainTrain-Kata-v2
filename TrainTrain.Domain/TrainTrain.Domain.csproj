@@ -7,8 +7,8 @@
     <ProjectGuid>{B7FBBF93-B9F3-4BD8-8B8A-7F7BF52B588A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TrainTrain</RootNamespace>
-    <AssemblyName>TrainTrain</AssemblyName>
+    <RootNamespace>TrainTrain.Domain</RootNamespace>
+    <AssemblyName>TrainTrain.Domain</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -46,26 +46,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BookingReferenceAdapter.cs" />
-    <Compile Include="IBookingReference.cs" />
-    <Compile Include="ITrainDataService.cs" />
+    <Compile Include="Coach.cs" />
+    <Compile Include="Port\IBookingReference.cs" />
+    <Compile Include="Port\ITrainDataService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reservation.cs" />
+    <Compile Include="ReservationAttempt.cs" />
+    <Compile Include="ReservationFailure.cs" />
     <Compile Include="Seat.cs" />
-    <Compile Include="SeatJsonPoco.cs" />
     <Compile Include="ThreasholdManager.cs" />
     <Compile Include="Train.cs" />
-    <Compile Include="TrainDataAdapter.cs" />
-    <Compile Include="TrainJsonPoco.cs" />
-    <Compile Include="WebTicketManager.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TrainTrain.Dal\TrainTrain.Dal.csproj">
-      <Project>{11b75ce2-05f8-4c3b-81e2-bf378725b2b3}</Project>
-      <Name>TrainTrain.Dal</Name>
-    </ProjectReference>
+    <Compile Include="TicketOfficeService.cs" />
+    <Compile Include="TrainId.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

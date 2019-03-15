@@ -5,8 +5,11 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using TrainTrain.Domain;
+using TrainTrain.Domain.Port;
 
-namespace TrainTrain
+namespace TrainTrain.Infrastructure.Adapter
 {
     public class TrainDataAdapter : ITrainDataService
     {
@@ -17,7 +20,7 @@ namespace TrainTrain
             _uriTrainDataService = uriTrainDataService;
         }
 
-        public async Task<Train> GetTrain(string trainId)
+        public async Task<Train> GetTrain(TrainId trainId)
         {
             string jsonTrainTopology;
             using (var client = new HttpClient())
@@ -36,7 +39,7 @@ namespace TrainTrain
             return new Train(trainId, AdaptTrainTopology(jsonTrainTopology));
         }
 
-        public async Task ReserveAsync(ReservationAttenpt reservationAttenpt)
+        public async Task ReserveAsync(ReservationAttempt reservationAttempt)
         {
             using (var client = new HttpClient())
             {
@@ -47,7 +50,9 @@ namespace TrainTrain
 
 
                 // HTTP POST
-                HttpContent resJson = new StringContent(BuildPostContent(reservationAttenpt.TrainId, reservationAttenpt.BookingReference, reservationAttenpt.Seats),
+                HttpContent resJson = new StringContent(
+                    BuildPostContent(reservationAttempt.TrainId, reservationAttempt.BookingReference,
+                        reservationAttempt.Seats),
                     Encoding.UTF8, "application/json");
                 var response = await client.PostAsync("reserve", resJson);
 
@@ -55,7 +60,7 @@ namespace TrainTrain
             }
         }
 
-        private static string BuildPostContent(string trainId, string bookingRef, IEnumerable<Seat> availableSeats)
+        private static string BuildPostContent(TrainId trainId, string bookingRef, IEnumerable<Seat> availableSeats)
         {
             var seats = new StringBuilder("[");
             var firstTime = true;
@@ -87,14 +92,14 @@ namespace TrainTrain
             // Forced to workaround with dynamic parsing since the received JSON is invalid format ;-(
             dynamic parsed = JsonConvert.DeserializeObject(trainTopologie);
 
-            foreach (var token in ((Newtonsoft.Json.Linq.JContainer) parsed))
+            foreach (var token in (JContainer) parsed)
             {
-                var allStuffs = ((Newtonsoft.Json.Linq.JObject) ((Newtonsoft.Json.Linq.JContainer) token).First);
+                var allStuffs = (JObject) ((JContainer) token).First;
 
                 foreach (var stuff in allStuffs)
                 {
                     var seatPoco = stuff.Value.ToObject<SeatJsonPoco>();
-                    seats.Add(new Seat(seatPoco.Coach, Int32.Parse(seatPoco.SeatNumber), seatPoco.BookingReference))
+                    seats.Add(new Seat(seatPoco.Coach, int.Parse(seatPoco.SeatNumber), seatPoco.BookingReference))
                         ;
                 }
             }

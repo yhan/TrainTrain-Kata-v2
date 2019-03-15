@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TrainTrain.Api.Models;
+using TrainTrain.Domain;
+using TrainTrain.Domain.Port;
+using TrainTrain.Infrastructure.Adapter;
 
 namespace TrainTrain.Api.Controllers
 {
@@ -26,10 +29,13 @@ namespace TrainTrain.Api.Controllers
 
         // POST api/reservations
         [HttpPost]
-        public async Task<string> Post([FromBody]ReservationRequestDto reservationRequest)
+        public async Task<string> Post([FromBody]ReservationRequestDto reservationRequest, [FromServices] ITrainDataService trainDataService, IBookingReference bookingReference)
         {
-            var manager = new WebTicketManager();
-            return new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(reservationRequest.train_id, reservationRequest.number_of_seats));
+            var manager = new TicketOfficeService(trainDataService, bookingReference);
+            var trainId = new TrainId(reservationRequest.train_id);
+            var seatsRequested = new SeatsRequested(reservationRequest.number_of_seats);
+
+            return new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatsRequested));
         }
 
         // PUT api/values/5

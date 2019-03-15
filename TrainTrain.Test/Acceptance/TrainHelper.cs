@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using TrainTrain;
+using TrainTrain.Domain;
+using TrainTrain.Infrastructure.Adapter;
 
 static internal class TrainHelper
 {
@@ -19,7 +21,7 @@ static internal class TrainHelper
 
     public static  Train BuildTrainWith_1_coach_and_0_reserved_seat(string coachId)
     {
-        var trainId = "express_2000";
+        var trainId = new TrainId("express_2000");
         string trainTopology = BuildTrainTopology(new CoachConfig[]
         {
             new CoachConfig(coachId, 3, 0)

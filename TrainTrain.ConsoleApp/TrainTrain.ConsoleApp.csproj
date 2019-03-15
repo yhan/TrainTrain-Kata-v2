@@ -61,9 +61,13 @@
     <None Include="Readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TrainTrain\TrainTrain.csproj">
+    <ProjectReference Include="..\TrainTrain.Domain\TrainTrain.Domain.csproj">
       <Project>{b7fbbf93-b9f3-4bd8-8b8a-7f7bf52b588a}</Project>
-      <Name>TrainTrain</Name>
+      <Name>TrainTrain.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TrainTrain.Infrastructure\TrainTrain.Infrastructure.csproj">
+      <Project>{f2227b0a-d54f-442f-8a0b-01d3964f0dd4}</Project>
+      <Name>TrainTrain.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,6 +2,7 @@
 using System.Linq;
 using NFluent;
 using NUnit.Framework;
+using TrainTrain.Domain;
 
 namespace TrainTrain.Test.Acceptance
 {

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TrainTrain.Domain.Port;
+using TrainTrain.Infrastructure.Adapter;
 
 namespace TrainTrain.Api
 {
@@ -28,6 +30,8 @@ namespace TrainTrain.Api
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
+            services.AddTransient<ITrainDataService, TrainDataAdapter>();
+            services.AddTransient<IBookingReference, BookingReferenceAdapter>();
             services.AddMvc();
         }
 
@@ -36,7 +40,7 @@ namespace TrainTrain.Api
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
+            
             app.UseMvc();
 
             if (env.IsDevelopment())
