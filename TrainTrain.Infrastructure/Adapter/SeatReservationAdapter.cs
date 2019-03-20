@@ -1,35 +1,35 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using TrainTrain.Domain;
 
 namespace TrainTrain.Infrastructure.Adapter
 {
+    using System.Threading.Tasks;
+
     public class SeatReservationAdapter
     {
+        private readonly IProvideReservation _hexagon;
+
+        public SeatReservationAdapter(IProvideReservation hexagon)
+        {
+            _hexagon = hexagon;
+        }
+
         public string AdaptReservation(Reservation reservation)
         {
             return
-                $"{{\"train_id\": \"{reservation.TrainId}\", \"booking_reference\": \"{reservation.BookingReference}\", \"seats\": {DumpSeats(reservation.Seats)}}}";
+                $"{{\"train_id\": \"{reservation.TrainId}\", \"booking_reference\": \"{reservation.BookingReference}\", \"seats\": {$"[{string.Join(", ", reservation.Seats)}]"}}}";
         }
 
-        private string DumpSeats(IEnumerable<Seat> seats)
+        public async Task<string> PostSeatsRequest(ReservationRequestDto reservationRequestDto)
         {
-            var sb = new StringBuilder("[");
+            // Infra => Domain
+            var trainId = new TrainId(reservationRequestDto.train_id);
+            var seatsRequested = new SeatsRequested(reservationRequestDto.number_of_seats);
 
-            var firstTime = true;
-            foreach (var seat in seats)
-            {
-                if (!firstTime)
-                    sb.Append(", ");
-                else
-                    firstTime = false;
+            var reservation = await _hexagon.ReserveAsync(trainId, seatsRequested);
 
-                sb.Append($"\"{seat.SeatNumber}{seat.CoachName}\"");
-            }
-
-            sb.Append("]");
-
-            return sb.ToString();
+            // Domain => Infra
+            return AdaptReservation(reservation);
         }
     }
 }

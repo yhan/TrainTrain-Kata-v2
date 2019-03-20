@@ -9,19 +9,24 @@ using TrainTrain.Infrastructure.Adapter;
 
 namespace TrainTrain.Test.Acceptance
 {
+    using Infrastructure;
+
     public class WebTicketManagerShould
     {
         [Test]
         public async Task Return_no_resrevation_When_resereved_seats_exeed_train_capacity()
         {
+            var bookingReferenceAdapter = Substitute.For<IBookingReference>();
+            var trainDataServiceAdapter = Substitute.For<ITrainDataService>();
+
             var trainId = new TrainId("express_2000");
-            var bookingReference = Substitute.For<IBookingReference>();
-            var trainDataService = Substitute.For<ITrainDataService>();
-            trainDataService.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 2, 0) + "}}"))));
-            var manager = new TicketOfficeService(trainDataService, bookingReference);
-            
             var seatRequested = new SeatsRequested(3);
-            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
+
+            trainDataServiceAdapter.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 2, 0) + "}}"))));
+            IProvideReservation hexagon = new TicketOfficeService(trainDataServiceAdapter, bookingReferenceAdapter);
+            var seatReservationAdapter = new SeatReservationAdapter(hexagon);
+            var reservationRequestDto = new ReservationRequestDto { train_id = trainId.ToString(), number_of_seats = seatRequested.Value};
+            var jsonResult = await seatReservationAdapter.PostSeatsRequest(reservationRequestDto);
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"\", \"seats\": []}}");
         }
 
@@ -30,14 +35,16 @@ namespace TrainTrain.Test.Acceptance
         {
             var bokingReferenceNumber = "10";
             var trainId = new TrainId("express_2000");
-            var bookingReference = Substitute.For<IBookingReference>();
-            bookingReference.GetBookingReference().Returns(Task.FromResult(bokingReferenceNumber));
-            var trainDataService = Substitute.For<ITrainDataService>();
-            trainDataService.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 3, 0) + "}}"))));
-            var manager = new TicketOfficeService(trainDataService, bookingReference);
-
+            var bookingReferenceAdapter = Substitute.For<IBookingReference>();
+            bookingReferenceAdapter.GetBookingReference().Returns(Task.FromResult(bokingReferenceNumber));
+            var trainDataServiceAdapter = Substitute.For<ITrainDataService>();
+            trainDataServiceAdapter.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 3, 0) + "}}"))));
+            
             var seatRequested = new SeatsRequested(1);
-            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
+            IProvideReservation hexagon = new TicketOfficeService(trainDataServiceAdapter, bookingReferenceAdapter);
+            var seatReservationAdapter = new SeatReservationAdapter(hexagon);
+            var reservationRequestDto = new ReservationRequestDto { train_id = trainId.ToString(), number_of_seats = seatRequested.Value};
+            var jsonResult = await seatReservationAdapter.PostSeatsRequest(reservationRequestDto);
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"{bokingReferenceNumber}\", \"seats\": [\"1A\"]}}");
         }
 
@@ -47,13 +54,22 @@ namespace TrainTrain.Test.Acceptance
             var seatRequested = new SeatsRequested(3);
             var trainId = new TrainId("express_2000");
             var bookingReferenceNumber = "10";
-            var bookingReference = Substitute.For<IBookingReference>();
-            bookingReference.GetBookingReference().Returns(Task.FromResult(bookingReferenceNumber));
-            var trainDataService = Substitute.For<ITrainDataService>();
-            trainDataService.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 10, 9) + "," + TrainHelper.BuildCoachJson("B", 10, 0) + "}}"))));
-            var manager = new TicketOfficeService(trainDataService, bookingReference);
+            
+            var bookingReferenceAdapter = Substitute.For<IBookingReference>();
+            bookingReferenceAdapter.GetBookingReference().Returns(Task.FromResult(bookingReferenceNumber));
+            
+            var trainDataServiceAdapter = Substitute.For<ITrainDataService>();
+            trainDataServiceAdapter.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 10, 9) + "," + TrainHelper.BuildCoachJson("B", 10, 0) + "}}"))));
+            
+            var manager = new TicketOfficeService(trainDataServiceAdapter, bookingReferenceAdapter);
 
-            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
+            IProvideReservation hexagon = new TicketOfficeService(trainDataServiceAdapter, bookingReferenceAdapter);
+            
+            var seatReservationAdapter = new SeatReservationAdapter(hexagon);
+            var reservationRequestDto = new ReservationRequestDto { train_id = trainId.ToString(), number_of_seats = seatRequested.Value};
+            
+            var jsonResult = await seatReservationAdapter.PostSeatsRequest(reservationRequestDto);
+
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"10\", \"seats\": [\"1B\", \"2B\", \"3B\"]}}");
         }
 
@@ -64,13 +80,21 @@ namespace TrainTrain.Test.Acceptance
             var seatRequested = new SeatsRequested(2);
             var trainId = new TrainId("express_2000");
             var bookingReferenceNumber = "10";
-            var bookingReference = Substitute.For<IBookingReference>();
-            bookingReference.GetBookingReference().Returns(Task.FromResult(bookingReferenceNumber));
-            var trainDataService = Substitute.For<ITrainDataService>();
-            trainDataService.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 10, numberOfReservedSeat: 6) + "," + TrainHelper.BuildCoachJson("B", 10, numberOfReservedSeat: 6) + "}}"))));
-            var manager = new TicketOfficeService(trainDataService, bookingReference);
+            
+            var bookingReferenceAdapter = Substitute.For<IBookingReference>();
+            bookingReferenceAdapter.GetBookingReference().Returns(Task.FromResult(bookingReferenceNumber));
+            
+            var trainDataServiceAdapter = Substitute.For<ITrainDataService>();
+            trainDataServiceAdapter.GetTrain(trainId).Returns(Task.FromResult(new Train(trainId, TrainDataAdapter.AdaptTrainTopology("{\"seats\": {" + TrainHelper.BuildCoachJson("A", 10, numberOfReservedSeat: 6) + "," + TrainHelper.BuildCoachJson("B", 10, numberOfReservedSeat: 6) + "}}"))));
+            var manager = new TicketOfficeService(trainDataServiceAdapter, bookingReferenceAdapter);
+            
+            IProvideReservation hexagon = new TicketOfficeService(trainDataServiceAdapter, bookingReferenceAdapter);
+            
+            var seatReservationAdapter = new SeatReservationAdapter(hexagon);
+            var reservationRequestDto = new ReservationRequestDto { train_id = trainId.ToString(), number_of_seats = seatRequested.Value};
+            
+            var jsonResult = await seatReservationAdapter.PostSeatsRequest(reservationRequestDto);
 
-            var jsonResult = new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatRequested));
             Check.That(jsonResult).IsEqualTo($"{{\"train_id\": \"{trainId}\", \"booking_reference\": \"10\", \"seats\": [\"7A\", \"7B\"]}}");
         }
     }

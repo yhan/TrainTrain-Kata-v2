@@ -22,12 +22,17 @@ namespace TrainTrain.Domain
 
         protected override IEnumerable<object> GetAllAttributesToBeUsedForEquality()
         {
-            return new object[] {CoachName, SeatNumber, BookingRef};
+            return new object[] { CoachName, SeatNumber, BookingRef };
         }
 
         public bool IsSeatNotReserved()
         {
             return BookingRef == "";
+        }
+
+        public override string ToString()
+        {
+            return $"\"{SeatNumber}{CoachName}\"";
         }
     }
 }

@@ -4,10 +4,9 @@ using TrainTrain.Domain.Port;
 
 namespace TrainTrain.Domain
 {
-    public class TicketOfficeService
+    public class TicketOfficeService : IProvideReservation
     {
-        public const string UriBookingReferenceService = "http://localhost:51691/";
-        public const string UriTrainDataService = "http://localhost:50680";
+
         private readonly IBookingReference _bookingReference;
         private readonly ITrainDataService _trainDataService;
 

@@ -12,8 +12,13 @@ using TrainTrain.Infrastructure.Adapter;
 
 namespace TrainTrain.Api
 {
+    using Domain;
+
     public class Startup
     {
+        public const string UriBookingReferenceService = "http://localhost:51691/";
+        public const string UriTrainDataService = "http://localhost:50680";
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -30,8 +35,13 @@ namespace TrainTrain.Api
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddTransient<ITrainDataService, TrainDataAdapter>();
-            services.AddTransient<IBookingReference, BookingReferenceAdapter>();
+            var bookingReferenceAdapter = new BookingReferenceAdapter(UriBookingReferenceService);
+            var trainDataAdapter = new TrainDataAdapter(UriTrainDataService);
+            var hexagon = new TicketOfficeService(trainDataAdapter, bookingReferenceAdapter);
+            var seatReservationAdapter = new SeatReservationAdapter(hexagon);
+
+            services.AddSingleton(seatReservationAdapter);
+
             services.AddMvc();
         }
 

@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using TrainTrain.Api.Models;
 using TrainTrain.Domain;
 using TrainTrain.Domain.Port;
 using TrainTrain.Infrastructure.Adapter;
 
 namespace TrainTrain.Api.Controllers
 {
+    using Infrastructure;
+
     [Route("api/[controller]")]
     public class ReservationsController : Controller
     {
+        private readonly SeatReservationAdapter _seatReservationAdapter;
+
+        public ReservationsController(SeatReservationAdapter seatReservationAdapter)
+        {
+            _seatReservationAdapter = seatReservationAdapter;
+        }
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
@@ -31,11 +38,7 @@ namespace TrainTrain.Api.Controllers
         [HttpPost]
         public async Task<string> Post([FromBody]ReservationRequestDto reservationRequest, [FromServices] ITrainDataService trainDataService, IBookingReference bookingReference)
         {
-            var manager = new TicketOfficeService(trainDataService, bookingReference);
-            var trainId = new TrainId(reservationRequest.train_id);
-            var seatsRequested = new SeatsRequested(reservationRequest.number_of_seats);
-
-            return new SeatReservationAdapter().AdaptReservation(await manager.ReserveAsync(trainId, seatsRequested));
+            return await _seatReservationAdapter.PostSeatsRequest(reservationRequest);
         }
 
         // PUT api/values/5
