@@ -1,12 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using TrainTrain.Domain.Port;
-
-namespace TrainTrain.Domain
+﻿namespace TrainTrain.Domain
 {
+    using System;
+    using System.Threading.Tasks;
+    using Port;
+
     public class TicketOfficeService : IProvideReservation
     {
-
         private readonly IBookingReference _bookingReference;
         private readonly ITrainDataService _trainDataService;
 
@@ -45,7 +44,7 @@ namespace TrainTrain.Domain
     {
         public SeatsRequested(int numberOfSeatsRequested)
         {
-            if(numberOfSeatsRequested <= 0 || numberOfSeatsRequested > 20)
+            if (numberOfSeatsRequested <= 0 || numberOfSeatsRequested > 20)
             {
                 throw new ArgumentException($"Invalid argument {nameof(numberOfSeatsRequested)}");
             }

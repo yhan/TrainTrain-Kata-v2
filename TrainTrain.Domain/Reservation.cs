@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace TrainTrain.Domain
+﻿namespace TrainTrain.Domain
 {
+    using System.Collections.Generic;
+
     public class Reservation
     {
         public Reservation(TrainId trainId, string bookingReference, List<Seat> seats)

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace TrainTrain.Domain
+﻿namespace TrainTrain.Domain
 {
+    using System.Collections.Generic;
+
     public class ReservationAttempt
     {
         public ReservationAttempt(TrainId trainId, SeatsRequested seatsRequested, List<Seat> seats)
@@ -25,7 +25,10 @@ namespace TrainTrain.Domain
         public void AssignBookingReference(string bookingRef)
         {
             BookingReference = bookingRef;
-            foreach (var availableSeat in Seats) availableSeat.BookingRef = bookingRef;
+            foreach (var availableSeat in Seats)
+            {
+                availableSeat.BookingRef = bookingRef;
+            }
         }
 
         public Reservation Confirm()

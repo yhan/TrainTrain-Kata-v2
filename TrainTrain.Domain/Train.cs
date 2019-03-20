@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace TrainTrain.Domain
+﻿namespace TrainTrain.Domain
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class Train
     {
         public Train(TrainId trainId, List<Seat> seats)
@@ -35,9 +35,11 @@ namespace TrainTrain.Domain
         {
             foreach (var coach in Coaches.Values)
             {
-                var reservationAttenpt =
-                    new ReservationAttempt(TrainId, seatsRequested, coach.GetAvailableSeats(seatsRequested));
-                if (reservationAttenpt.IsFulFilled()) return reservationAttenpt;
+                var reservationAttenpt = new ReservationAttempt(TrainId, seatsRequested, coach.GetAvailableSeats(seatsRequested));
+                if (reservationAttenpt.IsFulFilled())
+                {
+                    return reservationAttenpt;
+                }
             }
 
             return new ReservationAttempt(TrainId, seatsRequested, GetReservableSeats().Take(seatsRequested.Value).ToList());

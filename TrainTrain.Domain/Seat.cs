@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using Value;
-
-namespace TrainTrain.Domain
+﻿namespace TrainTrain.Domain
 {
+    using System.Collections.Generic;
+    using Value;
+
     public class Seat : ValueType<Seat>
     {
-        public Seat(string coachName, int seatNumber) : this(coachName, seatNumber, string.Empty)
+        public Seat(string coachName, int seatNumber)
+            : this(coachName, seatNumber, string.Empty)
         {
         }
 
@@ -20,11 +21,6 @@ namespace TrainTrain.Domain
         public int SeatNumber { get; }
         public string BookingRef { get; set; }
 
-        protected override IEnumerable<object> GetAllAttributesToBeUsedForEquality()
-        {
-            return new object[] { CoachName, SeatNumber, BookingRef };
-        }
-
         public bool IsSeatNotReserved()
         {
             return BookingRef == "";
@@ -33,6 +29,11 @@ namespace TrainTrain.Domain
         public override string ToString()
         {
             return $"\"{SeatNumber}{CoachName}\"";
+        }
+
+        protected override IEnumerable<object> GetAllAttributesToBeUsedForEquality()
+        {
+            return new object[] {CoachName, SeatNumber, BookingRef};
         }
     }
 }

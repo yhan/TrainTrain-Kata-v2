@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using Value;
-
-namespace TrainTrain.Domain
+﻿namespace TrainTrain.Domain
 {
-    public class TrainId :ValueType<TrainId>
+    using System;
+    using System.Collections.Generic;
+    using Value;
+
+    public class TrainId : ValueType<TrainId>
     {
         private readonly string _trainId;
-
-        public override string ToString()
-        {
-            return _trainId;
-        }
 
         public TrainId(string trainId)
         {
@@ -23,9 +18,14 @@ namespace TrainTrain.Domain
             _trainId = trainId;
         }
 
+        public override string ToString()
+        {
+            return _trainId;
+        }
+
         protected override IEnumerable<object> GetAllAttributesToBeUsedForEquality()
         {
-            return new object[] {this._trainId};
+            return new object[] {_trainId};
         }
     }
 }

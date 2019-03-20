@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-
-namespace TrainTrain.Domain.Port
+﻿namespace TrainTrain.Domain.Port
 {
+    using System.Threading.Tasks;
+
     public interface IBookingReference
     {
         Task<string> GetBookingReference();
